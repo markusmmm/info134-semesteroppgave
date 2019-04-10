@@ -63,10 +63,17 @@ function finnOversikt(){
   xhr.send();
 }
 
+/*
+  Creates a textnode and inserts it into the div element.
+  TODO: give the variables color?
+*/
+
 function createNode(totalBefolkning, kommunenummer, kommunenavn) {
+
   var node = document.createElement("LI");
   var textnode = document.createTextNode("Kommunenavn: " + kommunenavn +
-  " Kommunenummer: " +kommunenummer + " Total befolkning " + totalBefolkning);
+  ", Kommunenummer: " +kommunenummer + ", Total befolkning: " + totalBefolkning);
   node.appendChild(textnode);
+
   document.getElementById("oversikt").appendChild(node);
 }
