@@ -16,7 +16,6 @@ function displayNone(){
 }
 
 function finnOversikt(){
-//test
   var link = "http://wildboy.uib.no/~tpe056/folk/104857.json";
   var  xhr = new XMLHttpRequest();
 
@@ -32,41 +31,33 @@ function finnOversikt(){
       //console.log(obj.elementer);
       //console.log(obj);
 
-
       var count = Object.keys(obj.elementer).length;
-
       console.log(obj.elementer);
 
-      for (elements in obj.elementer){
-        console.log(elements);
+      //create list elements with total number of people and kommunenummer.
+      for(var prop in obj.elementer){
+        var kommunenummer = obj.elementer[prop].kommunenummer;
+
+        var men = obj.elementer[prop].Menn[2018];
+        var women = obj.elementer[prop].Kvinner[2018];
+        var total = men + women;
+        var lastElement = obj.elementer[prop];
+
       }
+      console.log(lastElement);
+      
+      console.log(women);
+      console.log(men);
+
+      console.log(total);
 
 
+      console.log(kommunenummer);
+      //console.log(x.Menn[2018]);
 
 
-      //console.log(obj.elementer.Halden.kommunenummer);
-
-
-
-
-
-
-
-
-
-
-      //var str = JSON.stringify(obj);
-
-    //var node = document.createElement("LI");
-    //  console.log(str)
-
-
-    //  document.getElementById("oversikt").appendChild(textnode);     // Append <li> to <ul> with id="myList"
-
-      //console.log(obj);
 
     }
   };
   xhr.send();
-
 }
