@@ -35,29 +35,38 @@ function finnOversikt(){
       console.log(obj.elementer);
 
       //create list elements with total number of people and kommunenummer.
+      //for-løkke som går igjennom alle kommuner og henter ut navn, kommunenummer og befolkning.
       for(var prop in obj.elementer){
         var kommunenummer = obj.elementer[prop].kommunenummer;
+        var kommunenavn = prop;
+        //befolkning av menn i 2018
+        var menn = obj.elementer[prop].Menn[2018];
 
-        var men = obj.elementer[prop].Menn[2018];
-        var women = obj.elementer[prop].Kvinner[2018];
-        var total = men + women;
-        var lastElement = obj.elementer[prop];
+        //befolkning av kvinner 2018
+        var kvinner = obj.elementer[prop].Kvinner[2018];
+        var totalBefolkning = menn + kvinner;
+
+        createNode(totalBefolkning, kommunenummer, kommunenavn);
 
       }
-      console.log(lastElement);
-      
-      console.log(women);
-      console.log(men);
-
-      console.log(total);
 
 
+      console.log(kommunenavn);
+      console.log(kvinner);
+      console.log(menn);
+      console.log(totalBefolkning);
       console.log(kommunenummer);
       //console.log(x.Menn[2018]);
-
-
 
     }
   };
   xhr.send();
+}
+
+function createNode(totalBefolkning, kommunenummer, kommunenavn) {
+  var node = document.createElement("LI");
+  var textnode = document.createTextNode("Kommunenavn: " + kommunenavn +
+  " Kommunenummer: " +kommunenummer + " Total befolkning " + totalBefolkning);
+  node.appendChild(textnode);
+  document.getElementById("oversikt").appendChild(node);
 }
