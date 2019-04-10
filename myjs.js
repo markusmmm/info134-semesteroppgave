@@ -16,7 +16,7 @@ function displayNone(){
 }
 
 function finnOversikt(){
-
+//test
   var link = "http://wildboy.uib.no/~tpe056/folk/104857.json";
   var  xhr = new XMLHttpRequest();
 
