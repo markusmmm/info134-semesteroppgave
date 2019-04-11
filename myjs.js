@@ -8,10 +8,15 @@ function changeDiv(divID){
 
   if(divID.id === "oversikt"){
 
-    oversiktAlleKommuner();
+    var oversikt = new Befolknings_Data(befolkning_url);
+    oversikt.printHtml();
+
   }
 
 }
+
+
+
 function displayNone(){
   document.getElementById("introduksjon").style.display = "none";
   document.getElementById("oversikt").style.display = "none";
@@ -50,72 +55,129 @@ function oversiktAlleKommuner(){
 }
 
 
-//Funksjonen kalles når bruker skriver inn kommunenummer.
-function kommuneInput(){
-  var alleKommuner = false;
-  var kommunenummer = document.getElementById('kommune').value;
 
-  load(befolkning_url,
-      function () {
-          var obj  = JSON.parse(this.responseText);
-
-          befolkningsdata(obj, alleKommuner, kommunenummer);
-
-      });
-
-  load(sysselsatte_url,
-      function () {
-          var obj  = JSON.parse(this.responseText);
-          sysselsetting(obj, kommunenummer);
-        });
-
-}
-
-function sysselsetting(obj,kommunenummer){
-  console.log(obj);
-
-}
-
-function befolkningsdata(obj, alleKommuner, kommuneInput){
-
+function sysselsetting(obj,kommuneInput){
   for(var prop in obj.elementer){
-    //looper gjennom alle elementer og finner kommu.
-    if(alleKommuner === false){
-      var kommunenummer = obj.elementer[prop].kommunenummer;
+    var kommunenummer = obj.elementer[prop].kommunenummer;
 
-      if(kommunenummer === kommuneInput){
-        var kommunenavn = prop;
-        var menn = obj.elementer[prop].Menn[2018];
-        var kvinner = obj.elementer[prop].Kvinner[2018];
-        var totalBefolkning = menn + kvinner;
-
-        skrivBefolkningsData(totalBefolkning, kommunenummer, kommunenavn, "detaljer");
-        break;
-      }
-    }else{
-      var test = [prop, obj.elementer[prop].kommunenummer];
-      var kommunenavn = prop;
-      var kommunenummer = obj.elementer[prop].kommunenummer;
-      var menn = obj.elementer[prop].Menn[2018];
-      var kvinner = obj.elementer[prop].Kvinner[2018];
-      var totalBefolkning = menn + kvinner;
-
-      skrivBefolkningsData(totalBefolkning, kommunenummer, kommunenavn, "oversikt");
-
+    if(kommunenummer === kommuneInput){
+      var menn_sysselsatt = obj.elementer[prop].Menn;
     }
+
   }
 }
 
-/*
-  Lager en Liste-node og setter inn befolkningsdata.
-  TODO: give the variables color?
-*/
-function skrivBefolkningsData(totalBefolkning, kommunenummer, kommunenavn, id) {
 
-  var node = document.createElement("LI");
-  var textnode = document.createTextNode("Kommunenavn: " + kommunenavn +
-  ", Kommunenummer: " +kommunenummer + ", Total befolkning: " + totalBefolkning);
-  node.appendChild(textnode);
 
-  document.getElementById(id).appendChild(node);
+
+
+
+
+//Funksjonen kalles når bruker skriver inn kommunenummer.
+function kommuneInput(){
+
+  var kommunenummer = document.getElementById('kommune').value;
+  var oversikt = new Befolknings_Data(befolkning_url);
+  var info = oversikt.returnInfo(kommunenummer);
+
+  document.getElementById('detaljer').appendChild(info);
+
+
 }
+
+// konstruktøren gir initielle verdier
+function Befolknings_Data(url) {
+// var r = Object.create(range.prototype) <- unødvendig
+this.url = url;
+var obj;
+
+this.load();
+
+
+}
+Befolknings_Data.prototype.load = function() {
+  var ajax = new XMLHttpRequest();
+
+  ajax.open("GET",this.url,false);
+  ajax.send();
+  if (ajax.readyState == 4) {
+    this.obj =  JSON.parse(ajax.responseText);
+  } else {
+    console.log("GREIDE IKKE Å LASTE DATASETT");
+  }
+
+};
+
+Befolknings_Data.prototype.returnObj = function() {
+  return this.obj;
+};
+
+//returnerer alle kommunenavn
+Befolknings_Data.prototype.returnNames = function() {
+  var kommunenavn_liste = [];
+  for(var prop in this.obj.elementer){
+    //looper gjennom alle elementer og finner kommu.
+      kommunenavn_liste.push(prop);
+
+      }
+      return kommunenavn_liste;
+
+};
+
+Befolknings_Data.prototype.returnNumbers = function() {
+  var kommunenummer_liste = [];
+  for(var prop in this.obj.elementer){
+      var kommunenummer = this.obj.elementer[prop].kommunenummer;
+      kommunenummer_liste.push(kommunenummer);
+
+      }
+      return kommunenummer_liste;
+};
+
+//printer i htmldokumentet.
+//ID = div hvor der printes.
+Befolknings_Data.prototype.printHtml = function(){
+
+  for(var prop in this.obj.elementer){
+
+      var kommunenummer = this.obj.elementer[prop].kommunenummer;
+      var kommunenavn = prop;
+      var menn = this.obj.elementer[prop].Menn[2018];
+      var kvinner = this.obj.elementer[prop].Kvinner[2018];
+      var totalBefolkning = menn + kvinner;
+
+      var node = document.createElement("LI");
+      var textnode = document.createTextNode("Kommunenavn: " + kommunenavn +
+      ", Kommunenummer: " +kommunenummer + ", Total befolkning: " + totalBefolkning);
+
+      node.appendChild(textnode);
+      document.getElementById('oversikt').appendChild(node);
+
+    }
+
+}
+
+Befolknings_Data.prototype.returnInfo = function(kommunenummer_input) {
+  var node = document.createElement("LI");
+  for(var prop in this.obj.elementer){
+    var kommunenummer = this.obj.elementer[prop].kommunenummer;
+    if(kommunenummer === kommunenummer_input){
+
+      var kommunenavn = prop;
+      var menn = this.obj.elementer[prop].Menn[2018];
+      var kvinner = this.obj.elementer[prop].Kvinner[2018];
+      var totalBefolkning = menn + kvinner;
+
+      var textnode = document.createTextNode("Kommunenavn: " + kommunenavn +
+      ", Kommunenummer: " +kommunenummer + ", Total befolkning: " + totalBefolkning);
+
+      node.appendChild(textnode);
+      return node;
+
+    }else{
+
+    }
+
+    }
+    alert("Ugyldig kommunenummer");
+};
