@@ -56,11 +56,6 @@ function oversiktAlleKommuner(){
 
 
 
-function test(){
-  var sysselsatte = new Sysselsatte(sysselsatte_url);
-
-
-}
 
 
 
@@ -72,10 +67,12 @@ function kommuneInput(){
   var kommunenummer = document.getElementById('kommune').value;
   var oversikt = new Befolknings_Data(befolkning_url);
   var sysselsatte = new Sysselsatte(sysselsatte_url);
+  var utdanning = new Utdanning(utdanning_url);
 
   var oversikt_info = oversikt.getInfo(kommunenummer);
   var sysselsatte_info = sysselsatte.getInfo(kommunenummer);
-  regnUtAntallSysselsatte(oversikt_info, sysselsatte_info);
+  var høyereUtdanning_info = utdanning.getHøyereUtdanning(kommunenummer);
+  skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info);
 
 
   //document.getElementById('detaljer').appendChild(oversikt_info);
@@ -84,20 +81,121 @@ function kommuneInput(){
 
 }
 
-function regnUtAntallSysselsatte(oversikt_info, sysselsatte_info){
+function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info){
   var antallMenn = oversikt_info[2];
   var antallKvinner = oversikt_info[3];
+
+  //regner ut antall menn og kvinner som jobber.
   var jobbMenn_prosent = sysselsatte_info[2];
   var jobbKvinner_prosent = sysselsatte_info[3];
-
   var antallMennJobb = antallMenn * (jobbMenn_prosent/100);
   var antallKvinnerJobb = antallKvinner * (jobbKvinner_prosent/100);
 
-  console.log("antall menn " + antallMennJobb);
-  console.log("antall kvinner " + antallKvinnerJobb);
+  //regner ut antall menn og kvinner som har høyere utdanning.
+  var utdanningMenn_kort = høyereUtdanning_info[0];
+  var utdanningKvinner_kort = høyereUtdanning_info[1];
+  var utdanningMenn_lang = høyereUtdanning_info[2];
+  var utdanningKvinner_lang = høyereUtdanning_info[3];
+
+
+  var utdanningMenn_kort_antall = antallMenn * (utdanningMenn_kort/100);
+  var utdanningMenn_lang_antall = antallMenn * (utdanningMenn_lang/100);
+
+  var utdanningKvinner_kort_antall = antallKvinner * (utdanningKvinner_kort/100);
+  var utdanningKvinner_lang_antall = antallKvinner * (utdanningKvinner_lang/100);
+
+
+
+
+  console.log("kommunenavn " + oversikt_info[0])
+  console.log("kommunenummer " + oversikt_info[1]);
+  console.log("Siste målte befolkning " + (antallMenn + antallKvinner));
+  console.log("------------------------------");
+  console.log("------------------------------");
+
+
+  console.log("antall menn som jobber " + antallMennJobb);
+  console.log("antall menn som jobber % " + jobbMenn_prosent);
+  console.log("------------------------------");
+  console.log("antall kvinner som jobber " + antallKvinnerJobb);
+  console.log("antall kvinner som jobber % " + jobbKvinner_prosent);
+
+  console.log("------------------------------");
+  console.log("------------------------------");
+
+
+  console.log("antall menn som har høyere utdanning " + (utdanningMenn_kort_antall + utdanningMenn_lang_antall));
+  console.log("antall menn som har høyere utdanning % " + (utdanningMenn_kort + utdanningMenn_lang));
+  console.log("------------------------------");
+  console.log("antall kvinner som har høyere utdanning " + (utdanningKvinner_kort_antall + utdanningKvinner_lang_antall));
+  console.log("antall kvinner som har høyere utdanning % " + (utdanningKvinner_kort + utdanningKvinner_lang));
+
+
 
 
 }
+
+function test(){
+  var utdanning = new Utdanning(utdanning_url);
+  console.log(utdanning.returnObj());
+  utdanning.getHøyereUtdanning("1201");
+
+
+}
+
+
+function Utdanning(url){
+  this.url = url;
+  var obj;
+  this.load();
+
+}
+
+Utdanning.prototype.load = function() {
+  var ajax = new XMLHttpRequest();
+
+  ajax.open("GET",this.url,false);
+  ajax.send();
+  if (ajax.readyState == 4) {
+    this.obj =  JSON.parse(ajax.responseText);
+  } else {
+    console.log("GREIDE IKKE Å LASTE DATASETT");
+  }
+};
+
+
+Utdanning.prototype.getHøyereUtdanning = function(kommunenummer_input){
+  //03a og 04a er høyere utdanning.
+  for(var prop in this.obj.elementer){
+    var kommunenummer = this.obj.elementer[prop].kommunenummer;
+    if(kommunenummer === kommunenummer_input){
+
+      var utdanningKortMenn = this.obj.elementer[prop]["03a"].Menn[2017]
+      var utdanningKortKvinner = this.obj.elementer[prop]["03a"].Kvinner[2017]
+
+      var utdanningLangMenn = this.obj.elementer[prop]["04a"].Menn[2017];
+      var utdanningLangKvinner = this.obj.elementer[prop]["04a"].Kvinner[2017];
+      console.log(this.obj.elementer[prop]["03a"]);
+
+
+      //returnerer variablene i et array i følgende rekkefølge:  Kort menn, kort kvinner, lang menn, lang kvinner.
+
+      var info_array = [utdanningKortMenn, utdanningKortKvinner, utdanningLangMenn, utdanningLangKvinner];
+      return info_array;
+
+
+
+
+    }
+  }
+
+};
+
+
+Utdanning.prototype.returnObj = function() {
+  return this.obj;
+};
+
 
 
 
