@@ -50,20 +50,18 @@ body {
    background:#044a63;
    padding:10px;
    height:15vh;
-
-
+    width: 100%;
 }
 
-#header #list {
-  padding-left: 30rem;
+#header #list{
+    margin-left: 25%;
 }
+
 #header li{
-
   list-style: none;
   padding-left: 1.6rem;
-  float:left;
+    display: inline-block;
   font-size: 1.4rem;
-
 }
 
 #header li a {
