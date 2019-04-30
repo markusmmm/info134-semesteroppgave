@@ -41,13 +41,21 @@
             <form>
             Skriv inn kommunenummer<br>
             <input type="text" id="kommune"><br>
-            <input type="button" id="sButton" onclick="kommuneInput()" value="SØK">
+            <input type="button" onclick="kommuneInput()" value="SØK">
             </form>
 
           </div>
 
           <div id="sammenligning">
-            <p>fjerde</p>
+            <form>
+              <p>Kommune 1:</p> <input type="text" id="kommune1"><br>
+              <p>Kommune 2:</p> <input type="text" id="kommune2"><br>
+
+              <input type="button" id="sButton" onclick="sammenligningFunksjon()" value="SØK">
+
+
+            </form>
+
           </div>
       </div>
 

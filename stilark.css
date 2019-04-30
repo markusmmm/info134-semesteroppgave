@@ -45,6 +45,9 @@ body {
   text-transform: uppercase;
 }
 
+.størstVekst{
+  background: green;
+  color:#fff;
 }
 
 th,
@@ -62,6 +65,9 @@ table, td {
 
 tr { display: block; float: left; }
 th, td { display: block; }
+
+
+
 
 
 #myTr{

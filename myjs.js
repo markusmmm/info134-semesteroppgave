@@ -59,7 +59,6 @@ function oversiktAlleKommuner(){
 
 
 
-
 //TODO BEGGE KJØNN.
 //Funksjonen kalles når bruker skriver inn kommunenummer.
 function kommuneInput(){
@@ -332,6 +331,210 @@ antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt){
 
 }
 
+function sammenligningFunksjon(){
+  var kommune1 = document.getElementById('kommune1').value;
+  var kommune2 = document.getElementById('kommune2').value;
+
+  var sysselsatte = new Sysselsatte(sysselsatte_url);
+  var befolkning = new Befolknings_Data(befolkning_url);
+
+
+
+  var kommune1_info = sysselsatte.getMennOgKvinner(kommune1);
+  var kommune2_info = sysselsatte.getMennOgKvinner(kommune2);
+
+  var kommune1_navn = befolkning.getName(kommune1);
+  var kommune2_navn = befolkning.getName(kommune2);
+
+
+  var x = document.createElement("TABLE");
+  x.setAttribute("id", "myTableSammenligning");
+  document.body.appendChild(x);
+
+
+  var y = document.createElement("TR");
+  y.setAttribute("id", "myTr");
+  document.getElementById("myTableSammenligning").appendChild(y);
+
+  var overskrifter = ["Årstall", kommune1_navn + " menn", kommune2_navn + " menn ",
+kommune1_navn + " kvinner", kommune2_navn + " kvinner"];
+
+
+  for(var i = 0; i < overskrifter.length; i++){
+    var z = document.createElement("TD");
+    var t = document.createTextNode(overskrifter[i]);
+    z.appendChild(t);
+    document.getElementById("myTr").appendChild(z);
+
+  }
+
+  var startår = 2005;
+
+  var prosent_menn_forrige_år_kommune1 = kommune1_info[0];
+  var prosent_menn_forrige_år_kommune2 = kommune2_info[0];
+
+  var prosent_kvinner_forrige_år_kommune1 = kommune1_info[1];
+  var prosent_kvinner_forrige_år_kommune2 = kommune2_info[1];
+
+  for(var i = 0; i < kommune1_info.length; i=i+2){
+
+    var bortover = document.createElement("TR");
+    bortover.setAttribute("id", "myTrSammenligning" + i);
+    document.getElementById("myTableSammenligning").appendChild(bortover);
+
+    var årstallTD = document.createElement("TD");
+    var årstallNode = document.createTextNode(startår);
+    årstallTD.appendChild(årstallNode);
+    document.getElementById("myTrSammenligning" + i).appendChild(årstallTD);
+
+
+    if(i === 0){
+      var kommune1MennTD = document.createElement("TD");
+      var kommune1MennNode = document.createTextNode(kommune1_info[i]);
+      kommune1MennTD.appendChild(kommune1MennNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune1MennTD);
+
+      var kommune2MennTD = document.createElement("TD");
+      var kommune2MennNode = document.createTextNode(kommune2_info[i]);
+      kommune2MennTD.appendChild(kommune2MennNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune2MennTD);
+
+      var kommune1KvinnerTD = document.createElement("TD");
+      var kommune1KvinnerNode = document.createTextNode(kommune1_info[i+1]);
+      kommune1KvinnerTD.appendChild(kommune1KvinnerNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune1KvinnerTD);
+
+      var kommune2KvinnerTD = document.createElement("TD");
+      var kommune2KvinnerNode = document.createTextNode(kommune2_info[i+1]);
+      kommune2KvinnerTD.appendChild(kommune2KvinnerNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune2KvinnerTD);
+      startår++;
+
+      continue;
+
+    }
+
+
+    var vekst_menn_kommune1 = sjekkProsentVekst(prosent_menn_forrige_år_kommune1, kommune1_info[i]);
+    var vekst_menn_kommune2 = sjekkProsentVekst(prosent_menn_forrige_år_kommune2, kommune2_info[i]);
+
+    var vekst_kvinner_kommune1 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune1, kommune1_info[i]);
+    var vekst_kvinner_kommune2 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune2, kommune2_info[i]);
+
+
+
+    if(vekst_menn_kommune1 > vekst_menn_kommune2){
+      var kommune1MennTD = document.createElement("TD");
+      var kommune1MennNode = document.createTextNode(kommune1_info[i]);
+      kommune1MennTD.setAttribute("class", "størstVekst");
+
+      kommune1MennTD.appendChild(kommune1MennNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune1MennTD);
+
+      var kommune2MennTD = document.createElement("TD");
+      var kommune2MennNode = document.createTextNode(kommune2_info[i]);
+      kommune2MennTD.appendChild(kommune2MennNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune2MennTD);
+
+    } else {
+
+      var kommune1MennTD = document.createElement("TD");
+      var kommune1MennNode = document.createTextNode(kommune1_info[i]);
+      kommune1MennTD.appendChild(kommune1MennNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune1MennTD);
+
+      var kommune2MennTD = document.createElement("TD");
+      var kommune2MennNode = document.createTextNode(kommune2_info[i]);
+      kommune2MennTD.setAttribute("class", "størstVekst");
+
+      kommune2MennTD.appendChild(kommune2MennNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune2MennTD);
+    }
+
+    if(vekst_kvinner_kommune1 > vekst_kvinner_kommune2){
+      var kommune1KvinnerTD = document.createElement("TD");
+      var kommune1KvinnerNode = document.createTextNode(kommune1_info[i+1]);
+      kommune1KvinnerTD.setAttribute("class", "størstVekst");
+
+      kommune1KvinnerTD.appendChild(kommune1KvinnerNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune1KvinnerTD);
+
+      var kommune2KvinnerTD = document.createElement("TD");
+      var kommune2KvinnerNode = document.createTextNode(kommune2_info[i+1]);
+      kommune2KvinnerTD.appendChild(kommune2KvinnerNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune2KvinnerTD);
+
+    } else{
+
+      var kommune1KvinnerTD = document.createElement("TD");
+      var kommune1KvinnerNode = document.createTextNode(kommune1_info[i+1]);
+      kommune1KvinnerTD.appendChild(kommune1KvinnerNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune1KvinnerTD);
+
+      var kommune2KvinnerTD = document.createElement("TD");
+      var kommune2KvinnerNode = document.createTextNode(kommune2_info[i+1]);
+      kommune2KvinnerTD.setAttribute("class", "størstVekst");
+
+      kommune2KvinnerTD.appendChild(kommune2KvinnerNode);
+      document.getElementById("myTrSammenligning" + i).appendChild(kommune2KvinnerTD);
+    }
+
+
+    prosent_menn_forrige_år_kommune1 = kommune1_info[i];
+    prosent_menn_forrige_år_kommune2 = kommune2_info[i];
+
+    prosent_kvinner_forrige_år_kommune1 = kommune1_info[i+1];
+    prosent_kvinner_forrige_år_kommune2 = kommune2_info[i+1];
+
+    startår++;
+
+  }
+
+  document.getElementById('sammenligning').appendChild(x);
+
+}
+
+function sjekkProsentVekst(prosent1, prosent2){
+  var vekst = prosent2 - prosent1;
+  return vekst;
+
+
+}
+/*
+
+function sjekkProsentVekst(kommune1_info, kommune2_info){
+  var størstVekst_kommune1 = [];
+  var størstVekst_kommune2 = [];
+
+  var prosent_menn_forrige_år_kommune1 = kommune1_info[0];
+  var prosent_menn_forrige_år_kommune2 = kommune2_info[0];
+
+  var prosent_kvinner_forrige_år_kommune1 = kommune1_info[1];
+  var prosent_kvinner_forrige_år_kommune2 = kommune2_info[1];
+
+  størstVekst_kommune1.push(prosent_menn_forrige_år_kommune1);
+  størstVekst_kommune1.push(prosent_kvinner_forrige_år_kommune1);
+
+  størstVekst_kommune2.push(prosent_menn_forrige_år_kommune2);
+  størstVekst_kommune2.push(prosent_kvinner_forrige_år_kommune2);
+
+
+
+  //første året er ikke vekst.
+  for(var i = 2; i < kommune1_info.length; i+2){
+    var prosent_menn_kommune1 = kommune1_info[i];
+    var prosent_menn_kommune2 = kommune2_info[i];
+
+    var prosent_kvinner_kommune1 = kommune1_info[i+1];
+    var prosent_kvinner_kommune2 = kommune2_info[i+1];
+
+    var vekst_menn_kommune1 = prosent_menn_kommune1 -
+
+
+  }
+
+}
+*/
 
 function Utdanning(url){
   this.url = url;
@@ -432,6 +635,26 @@ Sysselsatte.prototype.load = function() {
 
 };
 
+Sysselsatte.prototype.getMennOgKvinner = function(kommune_input){
+  for(var prop in this.obj.elementer){
+    var kommunenummer = this.obj.elementer[prop].kommunenummer;
+    if(kommunenummer === kommune_input){
+      var år = 2005;
+      var info_array = [];
+      for(var i = 0; i <= 13; i++){
+        var antallMenn = this.obj.elementer[prop].Menn[år]
+        var antallKvinner = this.obj.elementer[prop].Kvinner[år]
+
+        info_array.push(antallMenn);
+        info_array.push(antallKvinner);
+        år = år + 1;
+
+      }
+      return info_array;
+    }
+  }
+}
+
 Sysselsatte.prototype.getAllSyselsatte = function(kommune_input){
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
@@ -448,6 +671,8 @@ Sysselsatte.prototype.getAllSyselsatte = function(kommune_input){
     }
   }
 }
+
+
 
 
 
@@ -504,14 +729,22 @@ Befolknings_Data.prototype.returnObj = function() {
 };
 
 //returnerer alle kommunenavn
-Befolknings_Data.prototype.getNames = function() {
-  var kommunenavn_liste = [];
-  for(var prop in this.obj.elementer){
-    //looper gjennom alle elementer og finner kommu.
-      kommunenavn_liste.push(prop);
+Befolknings_Data.prototype.getName = function(kommunenummer_input) {
 
-      }
-      return kommunenavn_liste;
+  for(var prop in this.obj.elementer){
+    var kommunenummer = this.obj.elementer[prop].kommunenummer;
+
+    if(kommunenummer === kommunenummer_input){
+
+      var kommunenavn = prop;
+
+      return kommunenavn;
+
+
+    }
+
+
+    }
 
 };
 
