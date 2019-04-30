@@ -68,14 +68,12 @@ th, td { display: block; }
 
 
 
-
+#sammenligningInnledning{
+  color:green;
+}
 
 #myTr{
   font-weight: 800;
-}
-
-.test{
-  color:red;
 }
 
 #container {

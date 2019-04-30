@@ -1,22 +1,20 @@
+//De tre ulike URLene i oppgavesettet
 var befolkning_url = "http://wildboy.uib.no/~tpe056/folk/104857.json";
 var sysselsatte_url = "http://wildboy.uib.no/~tpe056/folk/100145.json";
 var utdanning_url = "http://wildboy.uib.no/~tpe056/folk/85432.json";
 
+//Viser de ulike divene etter brukerklikk
 function changeDiv(divID){
   displayNone();
   divID.style.display = "block";
 
   if(divID.id === "oversikt"){
-
     var oversikt = new Befolknings_Data(befolkning_url);
     oversikt.printHtml();
-
   }
-
 }
 
-
-
+//Skjuler alle divene hver gang bruker klikker i navigasjonen.
 function displayNone(){
   document.getElementById("introduksjon").style.display = "none";
   document.getElementById("oversikt").style.display = "none";
@@ -26,40 +24,6 @@ function displayNone(){
 
 
 
-
-//laster et datasett med gitt url og callback funksjon.
-function load(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (typeof callback === "function") {
-                callback.apply(xhr);
-            }
-        }
-    };
-    xhr.send();
-}
-
-
-//metoden kalles når brukeren trykker på oversikt.
-function oversiktAlleKommuner(){
-  var alleKommuner = true;
-  load(befolkning_url,
-      function () {
-          var obj  = JSON.parse(this.responseText);
-
-          befolkningsdata(obj, alleKommuner);
-
-      });
-}
-
-
-
-
-
-
-//TODO BEGGE KJØNN.
 //Funksjonen kalles når bruker skriver inn kommunenummer.
 function kommuneInput(){
   var kommunenummer = document.getElementById('kommune').value;
@@ -191,19 +155,6 @@ function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info){
 
 }
 
-function test(){
-  var befolkning = new Befolknings_Data(befolkning_url);
-  var array = befolkning.getAllBefolkning("1201", false);
-  console.log(array);
-
-  /*
-  var utdanning = new Utdanning(utdanning_url);
-  console.log(utdanning.returnObj());
-  utdanning.getHøyereUtdanning("1201");
-  */
-
-}
-
 function lagTabell(kommuneinfo, antallMenn, antallKvinner, sysselatte, antallGrunnskole, antallVideregående, antallFagskole,
 antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt){
 
@@ -332,6 +283,12 @@ antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt){
 }
 
 function sammenligningFunksjon(){
+  var innledning = document.createElement("div");
+  innledning.setAttribute("id", "sammenligningInnledning");
+  var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst")
+  innledning.appendChild(innledningsNode);
+  document.getElementById('sammenligning').appendChild(innledning);
+
   var kommune1 = document.getElementById('kommune1').value;
   var kommune2 = document.getElementById('kommune2').value;
 
@@ -353,7 +310,7 @@ function sammenligningFunksjon(){
 
 
   var y = document.createElement("TR");
-  y.setAttribute("id", "myTr");
+  y.setAttribute("id", "myTrSammenligning");
   document.getElementById("myTableSammenligning").appendChild(y);
 
   var overskrifter = ["Årstall", kommune1_navn + " menn", kommune2_navn + " menn ",
@@ -364,7 +321,7 @@ kommune1_navn + " kvinner", kommune2_navn + " kvinner"];
     var z = document.createElement("TD");
     var t = document.createTextNode(overskrifter[i]);
     z.appendChild(t);
-    document.getElementById("myTr").appendChild(z);
+    document.getElementById("myTrSammenligning").appendChild(z);
 
   }
 
@@ -494,48 +451,16 @@ kommune1_navn + " kvinner", kommune2_navn + " kvinner"];
 
 }
 
+//hjelpemetode som sjekker vekstforskjell gitt to ulike prosenter.
 function sjekkProsentVekst(prosent1, prosent2){
   var vekst = prosent2 - prosent1;
   return vekst;
 
 
 }
-/*
-
-function sjekkProsentVekst(kommune1_info, kommune2_info){
-  var størstVekst_kommune1 = [];
-  var størstVekst_kommune2 = [];
-
-  var prosent_menn_forrige_år_kommune1 = kommune1_info[0];
-  var prosent_menn_forrige_år_kommune2 = kommune2_info[0];
-
-  var prosent_kvinner_forrige_år_kommune1 = kommune1_info[1];
-  var prosent_kvinner_forrige_år_kommune2 = kommune2_info[1];
-
-  størstVekst_kommune1.push(prosent_menn_forrige_år_kommune1);
-  størstVekst_kommune1.push(prosent_kvinner_forrige_år_kommune1);
-
-  størstVekst_kommune2.push(prosent_menn_forrige_år_kommune2);
-  størstVekst_kommune2.push(prosent_kvinner_forrige_år_kommune2);
 
 
-
-  //første året er ikke vekst.
-  for(var i = 2; i < kommune1_info.length; i+2){
-    var prosent_menn_kommune1 = kommune1_info[i];
-    var prosent_menn_kommune2 = kommune2_info[i];
-
-    var prosent_kvinner_kommune1 = kommune1_info[i+1];
-    var prosent_kvinner_kommune2 = kommune2_info[i+1];
-
-    var vekst_menn_kommune1 = prosent_menn_kommune1 -
-
-
-  }
-
-}
-*/
-
+//Konstruktør utdanning.
 function Utdanning(url){
   this.url = url;
   var obj;
@@ -543,6 +468,7 @@ function Utdanning(url){
 
 }
 
+//load-funksjon som laster inn datasettet. Kjøres når objektet Utdannign opprettes.
 Utdanning.prototype.load = function() {
   var ajax = new XMLHttpRequest();
 
@@ -555,8 +481,8 @@ Utdanning.prototype.load = function() {
   }
 };
 
-
-Utdanning.prototype.getUtdanning = function(kommunenummer_input, kvinner, utdanning, befolkningMenn, befolkningKvinner){
+//returnerer info om utdanning for gitt kommunenummer.
+Utdanning.prototype.getUtdanning = function(kommunenummer_input, kvinner, utdanning){
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
     if(kommunenummer === kommunenummer_input){
@@ -580,8 +506,9 @@ Utdanning.prototype.getUtdanning = function(kommunenummer_input, kvinner, utdann
   }
 }
 
+//returnerer info om menn og kvinner som har høyere utdanning (03a og 04a).
 Utdanning.prototype.getHøyereUtdanning = function(kommunenummer_input){
-  //03a og 04a er høyere utdanning.
+
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
     if(kommunenummer === kommunenummer_input){
@@ -594,7 +521,8 @@ Utdanning.prototype.getHøyereUtdanning = function(kommunenummer_input){
       console.log(this.obj.elementer[prop]["03a"]);
 
 
-      //returnerer variablene i et array i følgende rekkefølge:  Kort menn, kort kvinner, lang menn, lang kvinner.
+      //returnerer variablene i et array i følgende rekkefølge:  Kort utdanning menn, kort utdanning kvinner,
+      //lang utdanning menn, lang utdanning kvinner.
 
       var info_array = [utdanningKortMenn, utdanningKortKvinner, utdanningLangMenn, utdanningLangKvinner];
       return info_array;
@@ -606,15 +534,9 @@ Utdanning.prototype.getHøyereUtdanning = function(kommunenummer_input){
 };
 
 
-Utdanning.prototype.returnObj = function() {
-  return this.obj;
-};
 
 
-
-
-
-
+//Konstruktør sysselatt.
 function Sysselsatte(url){
   this.url = url;
   var obj;
@@ -622,6 +544,7 @@ function Sysselsatte(url){
 
 }
 
+//Load laster inn dokumentet. Kjøres hver gang objektet opprettes.
 Sysselsatte.prototype.load = function() {
   var ajax = new XMLHttpRequest();
 
@@ -635,6 +558,7 @@ Sysselsatte.prototype.load = function() {
 
 };
 
+//Metode som returnerer sysselsatte menn % og kvinner% for alle år fra 2005, i en liste.
 Sysselsatte.prototype.getMennOgKvinner = function(kommune_input){
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
@@ -655,6 +579,7 @@ Sysselsatte.prototype.getMennOgKvinner = function(kommune_input){
   }
 }
 
+//Metode som returnerer sysselsatte begge kjønn% for alle år fra 2007, i en liste.
 Sysselsatte.prototype.getAllSyselsatte = function(kommune_input){
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
@@ -673,9 +598,7 @@ Sysselsatte.prototype.getAllSyselsatte = function(kommune_input){
 }
 
 
-
-
-
+//returnerer all info om sysselsetting for et gitt kommunenummer. (returnerer siste år, 2018).
 Sysselsatte.prototype.getInfo = function(kommunenummer_input) {
 
   for(var prop in this.obj.elementer){
@@ -701,16 +624,17 @@ Sysselsatte.prototype.getInfo = function(kommunenummer_input) {
 
 
 
-
-// konstruktøren gir initielle verdier
+//Konstruktør for befolknings objektet.
 function Befolknings_Data(url) {
-// var r = Object.create(range.prototype) <- unødvendig
+
 this.url = url;
 var obj;
 
 this.load();
 
 }
+
+//Load metoden kjøres hver gang objektet opprettes.
 Befolknings_Data.prototype.load = function() {
   var ajax = new XMLHttpRequest();
 
@@ -724,30 +648,24 @@ Befolknings_Data.prototype.load = function() {
 
 };
 
-Befolknings_Data.prototype.returnObj = function() {
-  return this.obj;
-};
 
-//returnerer alle kommunenavn
+//returnerer kommunenavn gitt kommunenummer.
 Befolknings_Data.prototype.getName = function(kommunenummer_input) {
 
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
 
     if(kommunenummer === kommunenummer_input){
-
       var kommunenavn = prop;
-
       return kommunenavn;
-
-
     }
 
-
     }
+    return ("NULL");
 
 };
 
+//Returnerer alle kommunenummer i en liste.
 Befolknings_Data.prototype.getIDs = function() {
   var kommunenummer_liste = [];
   for(var prop in this.obj.elementer){
@@ -760,7 +678,7 @@ Befolknings_Data.prototype.getIDs = function() {
 
 //printer i htmldokumentet.
 //ID = div hvor der printes.
-//kun metode for befolknings oversikt.
+//Printer oversikt over all befolkning.
 Befolknings_Data.prototype.printHtml = function(){
 
   for(var prop in this.obj.elementer){
@@ -777,11 +695,11 @@ Befolknings_Data.prototype.printHtml = function(){
 
       node.appendChild(textnode);
       document.getElementById('oversikt').appendChild(node);
-
     }
-
 }
 
+//Returnerer all info om en gitt kommune fra 2007.
+//PARAM: Kvinner er en bolsk variable. Hvis kvinner er false, returnerer den info om menn.
 Befolknings_Data.prototype.getAllBefolkning = function(kommune_input, kvinner){
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
@@ -806,6 +724,7 @@ Befolknings_Data.prototype.getAllBefolkning = function(kommune_input, kvinner){
 
 }
 
+//Returnerer info om en kommune, gitt kommunenummer. For siste år, 2018.
 Befolknings_Data.prototype.getInfo = function(kommunenummer_input) {
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
@@ -818,7 +737,6 @@ Befolknings_Data.prototype.getInfo = function(kommunenummer_input) {
 
 
       var info_array = [kommunenavn, kommunenummer, menn, kvinner, totalBefolkning];
-
 
       return info_array;;
 
