@@ -28,10 +28,12 @@ function displayNone(){
 function kommuneInput(){
   var kommunenummer = document.getElementById('kommune').value;
 
+  //oppretter de tre objektene.
   var oversikt = new Befolknings_Data(befolkning_url);
   var sysselsatte = new Sysselsatte(sysselsatte_url);
   var utdanning = new Utdanning(utdanning_url);
 
+  //får info fra de tre objektene, gitt kommunenummer.
   var oversikt_info = oversikt.getInfo(kommunenummer);
   var sysselsatte_info = sysselsatte.getInfo(kommunenummer);
   var høyereUtdanning_info = utdanning.getHøyereUtdanning(kommunenummer);
@@ -53,38 +55,167 @@ function kommuneInput(){
   //regner ut totalen av menn og kvinner med grunnskole utdanning fra 2007-2018. (2018 blir 0, ettersom det ikke er noe data her.)
   var antallGrunnskole = regnAntallUtdanning(grunnskoleMenn, grunnskoleKvinner, antallMenn, antallKvinner);
 
-
   var videregåendeMenn = utdanning.getUtdanning(kommunenummer, false, '02a');
   var videregåendeKvinner = utdanning.getUtdanning(kommunenummer, true, '02a');
   var antallVideregående = regnAntallUtdanning(videregåendeMenn, videregåendeKvinner, antallMenn, antallKvinner);
-
 
   var fagskoleMenn = utdanning.getUtdanning(kommunenummer, false, '11');
   var fagskoleKvinner = utdanning.getUtdanning(kommunenummer, true, '11');
   var antallFagskole = regnAntallUtdanning(fagskoleMenn, fagskoleKvinner, antallMenn, antallKvinner);
 
-
   var universitetMenn_kort = utdanning.getUtdanning(kommunenummer, false, '03a');
   var universitetKvinner_kort = utdanning.getUtdanning(kommunenummer, true, '03a');
   var antallUniversitet_kort = regnAntallUtdanning(universitetMenn_kort, universitetKvinner_kort, antallMenn, antallKvinner);
-
 
   var universitetMenn_lang = utdanning.getUtdanning(kommunenummer, false, '04a');
   var universitetKvinner_lang = utdanning.getUtdanning(kommunenummer, true, '04a');
   var antallUniversitet_lang = regnAntallUtdanning(universitetMenn_lang, universitetKvinner_lang, antallMenn, antallKvinner);
 
-
   var uoppgittMenn = utdanning.getUtdanning(kommunenummer, false, '09a');
   var uoppgittKvinner = utdanning.getUtdanning(kommunenummer, true, '09a');
   var antalluoppgitt = regnAntallUtdanning(uoppgittMenn, uoppgittKvinner, antallMenn, antallKvinner);
 
-
-
   var totalProsentSysselsatte = sysselsatte.getAllSyselsatte(kommunenummer);
 
+  //Kall på metode som skriver ut historisk oversikt fra 2007-2018.
   lagTabell(oversikt_info, antallMenn, antallKvinner, totalProsentSysselsatte, antallGrunnskole, antallVideregående, antallFagskole,
   antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt);
 
+}
+
+//Metode som skriver til HTML dokument og regner ut de forskjellige verdiene som brukes.
+function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info){
+
+  //Henter ut inforamsjon fra befolknings oversikt.
+  var kommunenavn = oversikt_info[0];
+  var kommunenummer = oversikt_info[1];
+  var antallMenn = oversikt_info[2];
+  var antallKvinner = oversikt_info[3];
+  var totalBefolkning = (antallKvinner + antallMenn);
+
+  //Henter ut fra jobboversikt og regner ut antall menn og kvinner som jobber.
+  var antallJobbProsent = sysselsatte_info[4];
+  var antallJobb = Math.floor((totalBefolkning * antallJobbProsent)/100);
+
+  //Henter ut høyere utdanning fra det siste året.
+  var utdanningMenn_kort = høyereUtdanning_info[0];
+  var utdanningKvinner_kort = høyereUtdanning_info[1];
+  var utdanningMenn_lang = høyereUtdanning_info[2];
+  var utdanningKvinner_lang = høyereUtdanning_info[3];
+
+  //Regner ut antall menn og kvinner som har høyere utdanning.
+  var utdanningMenn_kort_antall = antallMenn * (utdanningMenn_kort/100);
+  var utdanningMenn_lang_antall = antallMenn * (utdanningMenn_lang/100);
+  var utdanningKvinner_kort_antall = antallKvinner * (utdanningKvinner_kort/100);
+  var utdanningKvinner_lang_antall = antallKvinner * (utdanningKvinner_lang/100);
+
+  //Total utdanning menn og kvinner (antall).
+  var totalUtdanning = Math.round((utdanningMenn_kort_antall+utdanningMenn_lang_antall+
+    utdanningKvinner_kort_antall+utdanningKvinner_lang_antall));
+
+  //Total utdanning menn og kvinner (prosent)
+  var totalUtdanningProsent = (totalUtdanning*100)/totalBefolkning;
+
+  var node = document.createElement("UL");
+  node.setAttribute("id", "listDetaljer");
+
+  //overskriftene i de ulike liste-elementene
+  var overskrifter = ["Kommunenavn: ", "Kommunenummer: ", "Total Befolkning: ", "Antall sysselatt: ",
+"Antall sysselsatt(prosent): ", "Antall høyere utdanning: ", "Antall høyere utdanning(prosent): " ]
+
+  //verdi som som settes under overskriftene.
+  var verdi = [kommunenavn, kommunenummer, totalBefolkning, Math.round(antallJobb), antallJobbProsent.toFixed(1),
+    Math.round(totalUtdanning), totalUtdanningProsent.toFixed()];
+
+  //Looper gjennom overskrifeter og gir de riktig verdi.
+  for(var i = 0; i < overskrifter.length; i++){
+    var listNode = document.createElement("LI");
+    var textNode = document.createTextNode(overskrifter[i] + verdi[i]);
+    listNode.appendChild(textNode);
+    node.appendChild(listNode);
+
+  }
+
+  document.getElementById('detaljer').appendChild(node);
+}
+
+//Metode som lager tabell over historiske data.
+function lagTabell(kommuneinfo, antallMenn, antallKvinner, sysselatte, antallGrunnskole, antallVideregående, antallFagskole,
+antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt){
+
+  //lager et Table element
+  var x = document.createElement("TABLE");
+  x.setAttribute("id", "myTable");
+  document.body.appendChild(x);
+
+  var y = document.createElement("TR");
+  y.setAttribute("id", "myTr");
+  document.getElementById("myTable").appendChild(y);
+
+  //Alle overskriftene som skal settes inn i table element.
+  var overskrifter = ["Årstall","Total befolkning","Antall sysselsatt", "Antall sysselsatt(%)", "Fullført Grunnskole",
+"Fullført Grunnskole(%)", "Fullført Videregående", "Fullført videregående(%)", "Fullført fagskole", "Fullført fagskole(%)",
+"Fullført kort universitet", "Fullført kort universitet(%)", "Fullført universitet lang", "Fullført universitet lang(%)",
+"uoppgitt", "uoppgitt(%)"];
+
+  //Legger til alle overskriftene.
+  for(var i = 0; i < overskrifter.length; i++){
+    var z = document.createElement("TD");
+    var t = document.createTextNode(overskrifter[i]);
+    z.appendChild(t);
+    document.getElementById("myTr").appendChild(z);
+  }
+
+  //Looper gjennom 11 år.
+  for(var i = 0; i <= 11; i++){
+
+    var myTrId = "myTr" + i;
+
+    var bortover = document.createElement("TR");
+    bortover.setAttribute("id", myTrId);
+    document.getElementById("myTable").appendChild(bortover);
+
+    var årstallTD = document.createElement("TD");
+    var årstallNode = document.createTextNode(2007 + i);
+    årstallTD.appendChild(årstallNode);
+    document.getElementById(myTrId).appendChild(årstallTD);
+
+    var totalBefolkning = (antallMenn[i] + antallKvinner[i]);
+    var antallSysselsatte = Math.round((sysselatte[i] * totalBefolkning)/100);
+    var antallSysselsatteProsent = sysselatte[i].toFixed(1);
+
+    var grunnskole = Math.round(antallGrunnskole[i]);
+    var grunnskoleProsent = ((antallGrunnskole[i] * 100)/totalBefolkning).toFixed(1);
+
+    var videregående = Math.round(antallVideregående[i]);
+    var videregåendeProsent = ((antallVideregående[i] * 100)/totalBefolkning).toFixed(1);
+
+    var fagskole = Math.round(antallFagskole[i]);
+    var fagskoleProsent = ((antallFagskole[i] * 100)/totalBefolkning).toFixed(1);
+
+    var utdanningKort = Math.round(antallUniversitet_kort[i]);
+    var utdanningKortProsent = ((antallUniversitet_kort[i] * 100)/totalBefolkning).toFixed(1);
+
+    var utdanningLang = Math.round(antallUniversitet_lang[i]);
+    var utdanningLangProsent = ((antallUniversitet_lang[i] * 100)/totalBefolkning).toFixed(1);
+
+    var uoppgitt = Math.round(antalluoppgitt[i]);
+    var uoppgittProsent = ((antalluoppgitt[i] * 100)/totalBefolkning).toFixed(1);
+
+    var verdi = [totalBefolkning, antallSysselsatte, antallSysselsatteProsent, grunnskole, grunnskoleProsent,
+      videregående, videregåendeProsent, fagskole, fagskoleProsent, utdanningKort,
+      utdanningKortProsent, utdanningLang, utdanningLangProsent, uoppgitt, uoppgittProsent];
+
+   for(var j = 0; j < verdi.length; j++){
+
+     var tdElement = document.createElement("TD");
+     var textNode = document.createTextNode(verdi[j]);
+     tdElement.appendChild(textNode);
+     document.getElementById(myTrId).appendChild(tdElement);
+  }
+
+  document.getElementById('detaljer').appendChild(x);
+}
 }
 
 function regnAntallUtdanning(utdanningMenn, utdanningKvinner, antallMenn, antallKvinner){
@@ -99,187 +230,6 @@ function regnAntallUtdanning(utdanningMenn, utdanningKvinner, antallMenn, antall
     antallUtdanning_array.push(total);
   }
   return antallUtdanning_array;
-}
-
-function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info){
-
-  var kommunenavn = oversikt_info[0];
-  var kommunenummer = oversikt_info[1];
-
-  var antallMenn = oversikt_info[2];
-  var antallKvinner = oversikt_info[3];
-  var totalBefolkning = (antallKvinner + antallMenn);
-
-  //regner ut antall menn og kvinner som jobber.
-
-  var antallJobbProsent = sysselsatte_info[4];
-  var antallJobb = Math.floor((totalBefolkning * antallJobbProsent)/100);
-  //Tar vekk det etter komma.
-
-
-  var utdanningMenn_kort = høyereUtdanning_info[0];
-  var utdanningKvinner_kort = høyereUtdanning_info[1];
-
-  var utdanningMenn_lang = høyereUtdanning_info[2];
-  var utdanningKvinner_lang = høyereUtdanning_info[3];
-
-  var utdanningMenn_kort_antall = antallMenn * (utdanningMenn_kort/100);
-  var utdanningMenn_lang_antall = antallMenn * (utdanningMenn_lang/100);
-
-  var utdanningKvinner_kort_antall = antallKvinner * (utdanningKvinner_kort/100);
-  var utdanningKvinner_lang_antall = antallKvinner * (utdanningKvinner_lang/100);
-
-  var totalUtdanning = Math.round((utdanningMenn_kort_antall+utdanningMenn_lang_antall+
-    utdanningKvinner_kort_antall+utdanningKvinner_lang_antall));
-
-  var totalUtdanningProsent = (totalUtdanning*100)/totalBefolkning;
-
-  var node = document.createElement("UL");
-  node.setAttribute("id", "listDetaljer");
-
-  var overskrifter = ["Kommunenavn: ", "Kommunenummer: ", "Total Befolkning: ", "Antall sysselatt: ",
-"Antall sysselsatt(prosent): ", "Antall høyere utdanning: ", "Antall høyere utdanning(prosent): " ]
-
-  var verdi = [kommunenavn, kommunenummer, totalBefolkning, Math.round(antallJobb), antallJobbProsent.toFixed(1),
-    Math.round(totalUtdanning), totalUtdanningProsent.toFixed()];
-
-  for(var i = 0; i < overskrifter.length; i++){
-    var listNode = document.createElement("LI");
-    var textNode = document.createTextNode(overskrifter[i] + verdi[i]);
-    listNode.appendChild(textNode);
-    node.appendChild(listNode);
-
-  }
-
-  document.getElementById('detaljer').appendChild(node);
-
-}
-
-function lagTabell(kommuneinfo, antallMenn, antallKvinner, sysselatte, antallGrunnskole, antallVideregående, antallFagskole,
-antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt){
-
-  var x = document.createElement("TABLE");
-  x.setAttribute("id", "myTable");
-  document.body.appendChild(x);
-
-
-  var y = document.createElement("TR");
-  y.setAttribute("id", "myTr");
-  document.getElementById("myTable").appendChild(y);
-
-
-  var overskrifter = ["Årstall","Total befolkning","Antall sysselsatt", "Antall sysselsatt(%)", "Fullført Grunnskole",
-"Fullført Grunnskole(%)", "Fullført Videregående", "Fullført videregående(%)", "Fullført fagskole", "Fullført fagskole(%)",
-"Fullført kort universitet", "Fullført kort universitet(%)", "Fullført universitet lang", "Fullført universitet lang(%)",
-"uoppgitt", "uoppgitt(%)"];
-
-
-  for(var i = 0; i < overskrifter.length; i++){
-    var z = document.createElement("TD");
-    var t = document.createTextNode(overskrifter[i]);
-    z.appendChild(t);
-    document.getElementById("myTr").appendChild(z);
-
-  }
-
-
-  for(var i = 0; i <= 11; i++){
-
-
-    var totalBefolkning = (antallMenn[i] + antallKvinner[i]);
-
-    var bortover = document.createElement("TR");
-    bortover.setAttribute("id", "myTr" + i);
-    document.getElementById("myTable").appendChild(bortover);
-
-    var årstallTD = document.createElement("TD");
-    var årstallNode = document.createTextNode(2007 + i);
-    årstallTD.appendChild(årstallNode);
-    document.getElementById("myTr" + i).appendChild(årstallTD);
-
-
-    var totalBefolkningTD = document.createElement("TD");
-    var totalBefolkningNode = document.createTextNode(totalBefolkning);
-    totalBefolkningTD.appendChild(totalBefolkningNode);
-    document.getElementById("myTr" + i).appendChild(totalBefolkningTD);
-
-    var antallSysselsatteTD = document.createElement("TD");
-    var antallSysselsatteNode = document.createTextNode(Math.round((sysselatte[i] * totalBefolkning)/100));
-    antallSysselsatteTD.appendChild(antallSysselsatteNode);
-    document.getElementById("myTr" + i).appendChild(antallSysselsatteTD);
-
-    var antallSysselsatteTDProsent = document.createElement("TD");
-    var antallSysselsatteNodeProsent = document.createTextNode(sysselatte[i].toFixed(1));
-    antallSysselsatteTDProsent.appendChild(antallSysselsatteNodeProsent);
-    document.getElementById("myTr" + i).appendChild(antallSysselsatteTDProsent);
-
-    var antallGrunnskoleTD = document.createElement("TD");
-    var antallGrunnskoleNode = document.createTextNode(Math.round(antallGrunnskole[i]));
-    antallGrunnskoleTD.appendChild(antallGrunnskoleNode);
-    document.getElementById("myTr" + i).appendChild(antallGrunnskoleTD);
-
-    var antallGrunnskoleTDProsent = document.createElement("TD");
-    var antallGrunnskoleNodeProsent = document.createTextNode(((antallGrunnskole[i] * 100)/totalBefolkning).toFixed(1));
-    antallGrunnskoleTDProsent.appendChild(antallGrunnskoleNodeProsent);
-    document.getElementById("myTr" + i).appendChild(antallGrunnskoleTDProsent);
-
-    var antallVideregåendeTD = document.createElement("TD");
-    var antallVideregåendeNode = document.createTextNode(Math.round(antallVideregående[i]));
-    antallVideregåendeTD.appendChild(antallVideregåendeNode);
-    document.getElementById("myTr" + i).appendChild(antallVideregåendeTD);
-
-    var antallVideregåendeTDProsent = document.createElement("TD");
-    var antallVideregåendeNodeProsent = document.createTextNode(((antallVideregående[i] * 100)/totalBefolkning).toFixed(1));
-    antallVideregåendeTDProsent.appendChild(antallVideregåendeNodeProsent);
-    document.getElementById("myTr" + i).appendChild(antallVideregåendeTDProsent);
-
-    var antallFagskoleTD = document.createElement("TD");
-    var antallFagskoleNode = document.createTextNode(Math.round(antallFagskole[i]));
-    antallFagskoleTD.appendChild(antallFagskoleNode);
-    document.getElementById("myTr" + i).appendChild(antallFagskoleTD);
-
-    var antallFagskoleTDProsent = document.createElement("TD");
-    var antallFagskoleNodeProsent = document.createTextNode(((antallFagskole[i] * 100)/totalBefolkning).toFixed(1));
-    antallFagskoleTDProsent.appendChild(antallFagskoleNodeProsent);
-    document.getElementById("myTr" + i).appendChild(antallFagskoleTDProsent);
-
-    var antallUtdanningKortTD = document.createElement("TD");
-    var antallUtdanningKortNode = document.createTextNode(Math.round(antallUniversitet_kort[i]));
-    antallUtdanningKortTD.appendChild(antallUtdanningKortNode);
-    document.getElementById("myTr" + i).appendChild(antallUtdanningKortTD);
-
-    var antallUtdanningKortTDProsent = document.createElement("TD");
-    var antallUtdanningKortNodeProsent = document.createTextNode(((antallUniversitet_kort[i] * 100)/totalBefolkning).toFixed(1));
-    antallUtdanningKortTDProsent.appendChild(antallUtdanningKortNodeProsent);
-    document.getElementById("myTr" + i).appendChild(antallUtdanningKortTDProsent);
-
-    var antallUtdanningLangTD = document.createElement("TD");
-    var antallUtdanningLangNode = document.createTextNode(Math.round(antallUniversitet_lang[i]));
-    antallUtdanningLangTD.appendChild(antallUtdanningLangNode);
-    document.getElementById("myTr" + i).appendChild(antallUtdanningLangTD);
-
-    var antallUtdanningLangTDProsent = document.createElement("TD");
-    var antallUtdanningLangNodeProsent = document.createTextNode(((antallUniversitet_lang[i] * 100)/totalBefolkning).toFixed(1));
-    antallUtdanningLangTDProsent.appendChild(antallUtdanningLangNodeProsent);
-    document.getElementById("myTr" + i).appendChild(antallUtdanningLangTDProsent);
-
-    var antalluoppgittTD = document.createElement("TD");
-    var antalluoppgittNode = document.createTextNode(Math.round(antalluoppgitt[i]));
-    antalluoppgittTD.appendChild(antalluoppgittNode);
-    document.getElementById("myTr" + i).appendChild(antalluoppgittTD);
-
-    var antalluoppgittTDProsent = document.createElement("TD");
-    var antalluoppgittNodeProsent = document.createTextNode(((antalluoppgitt[i] * 100)/totalBefolkning).toFixed(1));
-    antalluoppgittTDProsent.appendChild(antalluoppgittNodeProsent);
-    document.getElementById("myTr" + i).appendChild(antalluoppgittTDProsent);
-
-
-  }
-
-  document.getElementById('detaljer').appendChild(x);
-
-
-
 }
 
 function sammenligningFunksjon(){
@@ -456,7 +406,6 @@ function sjekkProsentVekst(prosent1, prosent2){
   var vekst = prosent2 - prosent1;
   return vekst;
 
-
 }
 
 
@@ -481,7 +430,7 @@ Utdanning.prototype.load = function() {
   }
 };
 
-//returnerer info om utdanning for gitt kommunenummer.
+//returnerer info om utdanning for gitt kommunenummer og gitt utdanning.
 Utdanning.prototype.getUtdanning = function(kommunenummer_input, kvinner, utdanning){
   for(var prop in this.obj.elementer){
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
@@ -721,7 +670,6 @@ Befolknings_Data.prototype.getAllBefolkning = function(kommune_input, kvinner){
       return info_array;
     }
   }
-
 }
 
 //Returnerer info om en kommune, gitt kommunenummer. For siste år, 2018.
