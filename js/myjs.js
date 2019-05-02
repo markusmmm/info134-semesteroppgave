@@ -33,6 +33,7 @@ function checkKommunenummer(kommunenummer, kommuneNummer_liste){
   return false;
 }
 
+
 //Funksjonen kalles når bruker skriver inn kommunenummer.
 function kommuneInput() {
   //Lager en node der kommuneinput skal skrives inn.
@@ -68,9 +69,9 @@ function kommuneInput() {
 
 
   //antall menn fra 2007 - 2018
-  var antallMenn = oversikt.getAllBefolkning(kommunenummer, false);
+  var antallMenn = oversikt.getMennOgKvinner(kommunenummer, false);
   //antall kvinner fra 2007 - 2018
-  var antallKvinner = oversikt.getAllBefolkning(kommunenummer, true);
+  var antallKvinner = oversikt.getMennOgKvinner(kommunenummer, true);
 
   //grunnskole menn fra 2007 - 2018 (2018 er 0, ettersom det ikke er noe data på dette.)
   var grunnskoleMenn = utdanning.getUtdanning(kommunenummer, false, '01');
@@ -445,7 +446,6 @@ function Utdanning(url) {
   this.url = url;
   var obj;
   this.load();
-
 }
 
 //load-funksjon som laster inn datasettet. Kjøres når objektet Utdannign opprettes.
@@ -485,6 +485,17 @@ Utdanning.prototype.getUtdanning = function(kommunenummer_input, kvinner, utdann
     }
   }
 }
+
+//Returnerer alle kommunenummer i en liste.
+Utdanning.prototype.getIDs = function() {
+  var kommunenummer_liste = [];
+  for (var prop in this.obj.elementer) {
+    var kommunenummer = this.obj.elementer[prop].kommunenummer;
+    kommunenummer_liste.push(kommunenummer);
+
+  }
+  return kommunenummer_liste;
+};
 
 //returnerer info om menn og kvinner som har høyere utdanning (03a og 04a).
 Utdanning.prototype.getHøyereUtdanning = function(kommunenummer_input) {
@@ -554,6 +565,17 @@ Sysselsatte.prototype.getMennOgKvinner = function(kommune_input) {
     }
   }
 }
+
+//Returnerer alle kommunenummer i en liste.
+Sysselsatte.prototype.getIDs = function() {
+  var kommunenummer_liste = [];
+  for (var prop in this.obj.elementer) {
+    var kommunenummer = this.obj.elementer[prop].kommunenummer;
+    kommunenummer_liste.push(kommunenummer);
+
+  }
+  return kommunenummer_liste;
+};
 
 //Metode som returnerer sysselsatte begge kjønn% for alle år fra 2007, i en liste.
 Sysselsatte.prototype.getAllSyselsatte = function(kommune_input) {
@@ -625,6 +647,7 @@ Befolknings_Data.prototype.load = function() {
 };
 
 
+
 //returnerer kommunenavn gitt kommunenummer.
 Befolknings_Data.prototype.getName = function(kommunenummer_input) {
 
@@ -674,7 +697,7 @@ Befolknings_Data.prototype.printHtml = function() {
 
 //Returnerer all info om en gitt kommune fra 2007.
 //PARAM: Kvinner er en bolsk variable. Hvis kvinner er false, returnerer den info om menn.
-Befolknings_Data.prototype.getAllBefolkning = function(kommune_input, kvinner) {
+Befolknings_Data.prototype.getMennOgKvinner = function(kommune_input, kvinner) {
   for (var prop in this.obj.elementer) {
     var kommunenummer = this.obj.elementer[prop].kommunenummer;
     if (kommunenummer === kommune_input) {

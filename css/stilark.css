@@ -9,8 +9,6 @@ body {
    height:100%;
 }
 
-
-
 #introduksjon{
   display: block;
 }
@@ -68,9 +66,6 @@ table, td {
   th, td { display: block; }
 
 }
-
-
-
 
 #innledningsNode{
   color:green;
