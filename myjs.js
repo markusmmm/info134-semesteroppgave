@@ -7,11 +7,12 @@ var utdanning_url = "http://wildboy.uib.no/~tpe056/folk/85432.json";
 function changeDiv(divID) {
   displayNone();
   divID.style.display = "block";
+}
 
-  if (divID.id === "oversikt") {
-    var oversikt = new Befolknings_Data(befolkning_url);
-    oversikt.printHtml();
-  }
+//laster oversikt body onload.
+function loadOversikt(){
+  var oversikt = new Befolknings_Data(befolkning_url);
+  oversikt.printHtml();
 }
 
 //Skjuler alle divene hver gang bruker klikker i navigasjonen.
@@ -20,6 +21,15 @@ function displayNone() {
   document.getElementById("oversikt").style.display = "none";
   document.getElementById("detaljer").style.display = "none";
   document.getElementById("sammenligning").style.display = "none";
+}
+
+function checkKommunenummer(kommunenummer, kommuneNummer_liste){
+  for(var i = 0; i < kommuneNummer_liste.length; i++){
+    if(kommunenummer === kommuneNummer_liste[i]){
+      return true;
+    }
+  }
+  return false;
 }
 
 //Funksjonen kalles når bruker skriver inn kommunenummer.
@@ -38,6 +48,13 @@ function kommuneInput() {
   var oversikt = new Befolknings_Data(befolkning_url);
   var sysselsatte = new Sysselsatte(sysselsatte_url);
   var utdanning = new Utdanning(utdanning_url);
+
+  var kommuneNummer_liste = oversikt.getIDs();
+  if(!checkKommunenummer(kommunenummer, kommuneNummer_liste)){
+    alert("Ingen kommune med dette kommunenummeret, prøv igjen.");
+    return;
+  }
+
 
   //får info fra de tre objektene, gitt kommunenummer.
   var oversikt_info = oversikt.getInfo(kommunenummer);
@@ -251,6 +268,19 @@ function sammenligningFunksjon() {
 
   document.getElementById('sammenligningDiv').innerHTML = "";
 
+  var kommune1 = document.getElementById('kommune1').value;
+  var kommune2 = document.getElementById('kommune2').value;
+
+  var sysselsatte = new Sysselsatte(sysselsatte_url);
+  var befolkning = new Befolknings_Data(befolkning_url);
+
+  var kommuneNummer_liste = befolkning.getIDs();
+
+  if(!checkKommunenummer(kommune1, kommuneNummer_liste) || !checkKommunenummer(kommune2, kommuneNummer_liste)  ){
+    alert("Ingen kommune med dette kommunenummeret, prøv igjen.");
+    return;
+  }
+
   var textElement = document.createElement("p");
   var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst. Ingen data på 2005, grunnet ingen tidligere data");
   textElement.appendChild(innledningsNode);
@@ -258,14 +288,6 @@ function sammenligningFunksjon() {
   textElement.setAttribute("id", "innledningsNode");
 
   document.getElementById(sammenligningDiv.id).appendChild(textElement);
-
-
-
-  var kommune1 = document.getElementById('kommune1').value;
-  var kommune2 = document.getElementById('kommune2').value;
-
-  var sysselsatte = new Sysselsatte(sysselsatte_url);
-  var befolkning = new Befolknings_Data(befolkning_url);
 
   var kommune1_info = sysselsatte.getMennOgKvinner(kommune1);
   var kommune2_info = sysselsatte.getMennOgKvinner(kommune2);
