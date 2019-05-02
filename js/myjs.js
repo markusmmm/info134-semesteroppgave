@@ -23,6 +23,7 @@ function displayNone() {
   document.getElementById("sammenligning").style.display = "none";
 }
 
+//funksjon for å sjekke om kommuneinput faktisk er en kommune
 function checkKommunenummer(kommunenummer, kommuneNummer_liste){
   for(var i = 0; i < kommuneNummer_liste.length; i++){
     if(kommunenummer === kommuneNummer_liste[i]){
@@ -39,8 +40,6 @@ function kommuneInput() {
   kommuneInputDiv.setAttribute('id', 'kommuneInputDiv');
   document.getElementById('detaljer').appendChild(kommuneInputDiv);
 
-  document.getElementById('kommuneInputDiv').innerHTML = "";
-
 
   var kommunenummer = document.getElementById('kommune').value;
 
@@ -51,9 +50,12 @@ function kommuneInput() {
 
   var kommuneNummer_liste = oversikt.getIDs();
   if(!checkKommunenummer(kommunenummer, kommuneNummer_liste)){
-    alert("Ingen kommune med dette kommunenummeret, prøv igjen.");
+    alert("Ingen kommune med kommunenummer " + kommunenummer + " , prøv igjen.");
     return;
   }
+  //sletter all info i diven.
+  document.getElementById('kommuneInputDiv').innerHTML = "";
+
 
 
   //får info fra de tre objektene, gitt kommunenummer.
@@ -262,11 +264,10 @@ function regnAntallUtdanning(utdanningMenn, utdanningKvinner, antallMenn, antall
 //Metoden kalles når bruker skriver inn to kommunenummer.
 function sammenligningFunksjon() {
 
+  //Lager en node hvor all infoen skal stå.
   var sammenligningDiv = document.createElement("div");
   sammenligningDiv.setAttribute("id", "sammenligningDiv");
   document.getElementById('sammenligning').appendChild(sammenligningDiv);
-
-  document.getElementById('sammenligningDiv').innerHTML = "";
 
   var kommune1 = document.getElementById('kommune1').value;
   var kommune2 = document.getElementById('kommune2').value;
@@ -280,6 +281,10 @@ function sammenligningFunksjon() {
     alert("Ingen kommune med dette kommunenummeret, prøv igjen.");
     return;
   }
+  //sletter alt som står i diven.
+  document.getElementById('sammenligningDiv').innerHTML = "";
+
+
 
   var textElement = document.createElement("p");
   var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst. Ingen data på 2005, grunnet ingen tidligere data");
