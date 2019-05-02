@@ -22,10 +22,16 @@ function displayNone() {
   document.getElementById("sammenligning").style.display = "none";
 }
 
-
-
 //Funksjonen kalles når bruker skriver inn kommunenummer.
 function kommuneInput() {
+  //Lager en node der kommuneinput skal skrives inn.
+  var kommuneInputDiv = document.createElement("div");
+  kommuneInputDiv.setAttribute('id', 'kommuneInputDiv');
+  document.getElementById('detaljer').appendChild(kommuneInputDiv);
+
+  document.getElementById('kommuneInputDiv').innerHTML = "";
+
+
   var kommunenummer = document.getElementById('kommune').value;
 
   //oppretter de tre objektene.
@@ -39,7 +45,7 @@ function kommuneInput() {
   var høyereUtdanning_info = utdanning.getHøyereUtdanning(kommunenummer);
 
   //metode som skriver ut oversikt over kommune(siste år).
-  skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info);
+  skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info, kommuneInputDiv.id);
 
 
   //antall menn fra 2007 - 2018
@@ -79,12 +85,12 @@ function kommuneInput() {
 
   //Kall på metode som skriver ut historisk oversikt fra 2007-2018.
   lagTabell(oversikt_info, antallMenn, antallKvinner, totalProsentSysselsatte, antallGrunnskole, antallVideregående, antallFagskole,
-    antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt);
+    antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt, kommuneInputDiv.id);
 
 }
 
 //Metode som skriver til HTML dokument og regner ut de forskjellige verdiene som brukes.
-function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info) {
+function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info, kommuneInputDiv) {
 
   //Henter ut inforamsjon fra befolknings oversikt.
   var kommunenavn = oversikt_info[0];
@@ -119,6 +125,7 @@ function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info) {
   var node = document.createElement("UL");
   node.setAttribute("id", "listDetaljer");
 
+
   //overskriftene i de ulike liste-elementene
   var overskrifter = ["Kommunenavn: ", "Kommunenummer: ", "Total Befolkning: ", "Antall sysselatt: ",
     "Antall sysselsatt(prosent): ", "Antall høyere utdanning: ", "Antall høyere utdanning(prosent): "
@@ -135,15 +142,14 @@ function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info) {
     var textNode = document.createTextNode(overskrifter[i] + verdi[i]);
     listNode.appendChild(textNode);
     node.appendChild(listNode);
-
   }
 
-  document.getElementById('detaljer').appendChild(node);
+  document.getElementById(kommuneInputDiv).appendChild(node);
 }
 
 //Metode som lager tabell over historiske data.
 function lagTabell(kommuneinfo, antallMenn, antallKvinner, sysselatte, antallGrunnskole, antallVideregående, antallFagskole,
-  antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt) {
+  antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt, kommuneInputDiv) {
 
   //lager et Table element
   var x = document.createElement("TABLE");
@@ -218,7 +224,7 @@ function lagTabell(kommuneinfo, antallMenn, antallKvinner, sysselatte, antallGru
       document.getElementById(myTrId).appendChild(tdElement);
     }
 
-    document.getElementById('detaljer').appendChild(x);
+    document.getElementById(kommuneInputDiv).appendChild(x);
   }
 }
 
@@ -238,11 +244,22 @@ function regnAntallUtdanning(utdanningMenn, utdanningKvinner, antallMenn, antall
 
 //Metoden kalles når bruker skriver inn to kommunenummer.
 function sammenligningFunksjon() {
-  var innledning = document.createElement("div");
-  innledning.setAttribute("id", "sammenligningInnledning");
-  var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst, grunnet ingen tidligere data")
-  innledning.appendChild(innledningsNode);
-  document.getElementById('sammenligning').appendChild(innledning);
+
+  var sammenligningDiv = document.createElement("div");
+  sammenligningDiv.setAttribute("id", "sammenligningDiv");
+  document.getElementById('sammenligning').appendChild(sammenligningDiv);
+
+  document.getElementById('sammenligningDiv').innerHTML = "";
+
+  var textElement = document.createElement("p");
+  var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst. Ingen data på 2005, grunnet ingen tidligere data");
+  textElement.appendChild(innledningsNode);
+
+  textElement.setAttribute("id", "innledningsNode");
+
+  document.getElementById(sammenligningDiv.id).appendChild(textElement);
+
+
 
   var kommune1 = document.getElementById('kommune1').value;
   var kommune2 = document.getElementById('kommune2').value;
@@ -305,7 +322,7 @@ function sammenligningFunksjon() {
 
     var verdi = [kommune1Menn, kommune2Menn, kommune1Kvinner, kommune2Kvinner];
 
-    if (i === 0) {
+    if (i === 0 || kommune1 === kommune2) {
       for (var j = 0; j < verdi.length; j++) {
         var tdElement = document.createElement("TD");
         var textNode = document.createTextNode(verdi[j]);
@@ -385,7 +402,7 @@ function sammenligningFunksjon() {
 
     startår++;
   }
-  document.getElementById('sammenligning').appendChild(x);
+  document.getElementById(sammenligningDiv.id).appendChild(x);
 }
 
 //hjelpemetode som sjekker vekstforskjell gitt to ulike prosenter.
@@ -454,8 +471,6 @@ Utdanning.prototype.getHøyereUtdanning = function(kommunenummer_input) {
 
       var utdanningLangMenn = this.obj.elementer[prop]["04a"].Menn[2017];
       var utdanningLangKvinner = this.obj.elementer[prop]["04a"].Kvinner[2017];
-      console.log(this.obj.elementer[prop]["03a"]);
-
 
       //returnerer variablene i et array i følgende rekkefølge:  Kort utdanning menn, kort utdanning kvinner,
       //lang utdanning menn, lang utdanning kvinner.
