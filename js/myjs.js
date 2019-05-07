@@ -2,17 +2,19 @@
 var befolkning_url = "http://wildboy.uib.no/~tpe056/folk/104857.json";
 var sysselsatte_url = "http://wildboy.uib.no/~tpe056/folk/100145.json";
 var utdanning_url = "http://wildboy.uib.no/~tpe056/folk/85432.json";
+var befolknings_oversikt;
 
 //Viser de ulike divene etter brukerklikk
 function changeDiv(divID) {
   displayNone();
+  console.log(divID + " divid");
   divID.style.display = "block";
 }
 
-//laster oversikt body onload.
-function loadOversikt(){
-  var oversikt = new Befolknings_Data(befolkning_url);
-  oversikt.printHtml();
+//laster befolknings_oversikt body onload.
+function loadOversikt() {
+  befolknings_oversikt = new Befolknings_Data(befolkning_url);
+  befolknings_oversikt.printHtml();
 }
 
 //Skjuler alle divene hver gang bruker klikker i navigasjonen.
@@ -24,9 +26,9 @@ function displayNone() {
 }
 
 //funksjon for å sjekke om kommuneinput faktisk er en kommune
-function checkKommunenummer(kommunenummer, kommuneNummer_liste){
-  for(var i = 0; i < kommuneNummer_liste.length; i++){
-    if(kommunenummer === kommuneNummer_liste[i]){
+function checkKommunenummer(kommunenummer, kommuneNummer_liste) {
+  for (var i = 0; i < kommuneNummer_liste.length; i++) {
+    if (kommunenummer === kommuneNummer_liste[i]) {
       return true;
     }
   }
@@ -41,37 +43,34 @@ function kommuneInput() {
   kommuneInputDiv.setAttribute('id', 'kommuneInputDiv');
   document.getElementById('detaljer').appendChild(kommuneInputDiv);
 
-
   var kommunenummer = document.getElementById('kommune').value;
 
   //oppretter de tre objektene.
-  var oversikt = new Befolknings_Data(befolkning_url);
+  //var befolknings_oversikt = new Befolknings_Data(befolkning_url);
   var sysselsatte = new Sysselsatte(sysselsatte_url);
   var utdanning = new Utdanning(utdanning_url);
 
-  var kommuneNummer_liste = oversikt.getIDs();
-  if(!checkKommunenummer(kommunenummer, kommuneNummer_liste)){
+  var kommuneNummer_liste = befolknings_oversikt.getIDs();
+  if (!checkKommunenummer(kommunenummer, kommuneNummer_liste)) {
     alert("Ingen kommune med kommunenummer " + kommunenummer + " , prøv igjen.");
     return;
   }
   //sletter all info i diven.
   document.getElementById('kommuneInputDiv').innerHTML = "";
 
-
-
   //får info fra de tre objektene, gitt kommunenummer.
-  var oversikt_info = oversikt.getInfo(kommunenummer);
+  var befolknings_oversikt_info = befolknings_oversikt.getInfo(kommunenummer);
   var sysselsatte_info = sysselsatte.getInfo(kommunenummer);
   var høyereUtdanning_info = utdanning.getHøyereUtdanning(kommunenummer);
 
-  //metode som skriver ut oversikt over kommune(siste år).
-  skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info, kommuneInputDiv.id);
+  //metode som skriver ut befolknings_oversikt over kommune(siste år).
+  skrivNode(befolknings_oversikt_info, sysselsatte_info, høyereUtdanning_info, kommuneInputDiv.id);
 
 
   //antall menn fra 2007 - 2018
-  var antallMenn = oversikt.getMennOgKvinner(kommunenummer, false);
+  var antallMenn = befolknings_oversikt.getMennOgKvinner(kommunenummer, false);
   //antall kvinner fra 2007 - 2018
-  var antallKvinner = oversikt.getMennOgKvinner(kommunenummer, true);
+  var antallKvinner = befolknings_oversikt.getMennOgKvinner(kommunenummer, true);
 
   //grunnskole menn fra 2007 - 2018 (2018 er 0, ettersom det ikke er noe data på dette.)
   var grunnskoleMenn = utdanning.getUtdanning(kommunenummer, false, '01');
@@ -103,23 +102,23 @@ function kommuneInput() {
 
   var totalProsentSysselsatte = sysselsatte.getAllSyselsatte(kommunenummer);
 
-  //Kall på metode som skriver ut historisk oversikt fra 2007-2018.
-  lagTabell(oversikt_info, antallMenn, antallKvinner, totalProsentSysselsatte, antallGrunnskole, antallVideregående, antallFagskole,
+  //Kall på metode som skriver ut historisk befolknings_oversikt fra 2007-2018.
+  lagTabell(befolknings_oversikt_info, antallMenn, antallKvinner, totalProsentSysselsatte, antallGrunnskole, antallVideregående, antallFagskole,
     antallUniversitet_kort, antallUniversitet_lang, antalluoppgitt, kommuneInputDiv.id);
 
 }
 
 //Metode som skriver til HTML dokument og regner ut de forskjellige verdiene som brukes.
-function skrivNode(oversikt_info, sysselsatte_info, høyereUtdanning_info, kommuneInputDiv) {
+function skrivNode(befolknings_oversikt_info, sysselsatte_info, høyereUtdanning_info, kommuneInputDiv) {
 
-  //Henter ut inforamsjon fra befolknings oversikt.
-  var kommunenavn = oversikt_info[0];
-  var kommunenummer = oversikt_info[1];
-  var antallMenn = oversikt_info[2];
-  var antallKvinner = oversikt_info[3];
+  //Henter ut inforamsjon fra befolknings befolknings_oversikt.
+  var kommunenavn = befolknings_oversikt_info[0];
+  var kommunenummer = befolknings_oversikt_info[1];
+  var antallMenn = befolknings_oversikt_info[2];
+  var antallKvinner = befolknings_oversikt_info[3];
   var totalBefolkning = (antallKvinner + antallMenn);
 
-  //Henter ut fra jobboversikt og regner ut antall menn og kvinner som jobber.
+  //Henter ut fra jobbbefolknings_oversikt og regner ut antall menn og kvinner som jobber.
   var antallJobbProsent = sysselsatte_info[4];
   var antallJobb = Math.floor((totalBefolkning * antallJobbProsent) / 100);
 
@@ -195,7 +194,7 @@ function lagTabell(kommuneinfo, antallMenn, antallKvinner, sysselatte, antallGru
     document.getElementById("myTr").appendChild(z);
   }
 
-  //Looper gjennom 11 år.
+  //Looper gjennom 11 år, mest hensiktmessig i forhold til datasettet.
   for (var i = 0; i <= 11; i++) {
 
     var myTrId = "myTr" + i;
@@ -231,11 +230,13 @@ function lagTabell(kommuneinfo, antallMenn, antallKvinner, sysselatte, antallGru
     var uoppgitt = Math.round(antalluoppgitt[i]);
     var uoppgittProsent = ((antalluoppgitt[i] * 100) / totalBefolkning).toFixed(1);
 
+    //Lager et array av alle verdiene.
     var verdi = [totalBefolkning, antallSysselsatte, antallSysselsatteProsent, grunnskole, grunnskoleProsent,
       videregående, videregåendeProsent, fagskole, fagskoleProsent, utdanningKort,
       utdanningKortProsent, utdanningLang, utdanningLangProsent, uoppgitt, uoppgittProsent
     ];
 
+    //looper gjennom alle verdiene og legger de til et TD element.
     for (var j = 0; j < verdi.length; j++) {
 
       var tdElement = document.createElement("TD");
@@ -274,18 +275,16 @@ function sammenligningFunksjon() {
   var kommune2 = document.getElementById('kommune2').value;
 
   var sysselsatte = new Sysselsatte(sysselsatte_url);
-  var befolkning = new Befolknings_Data(befolkning_url);
+  //var befolkning = new Befolknings_Data(befolkning_url);
 
-  var kommuneNummer_liste = befolkning.getIDs();
+  var kommuneNummer_liste = befolknings_oversikt.getIDs();
 
-  if(!checkKommunenummer(kommune1, kommuneNummer_liste) || !checkKommunenummer(kommune2, kommuneNummer_liste)  ){
+  if (!checkKommunenummer(kommune1, kommuneNummer_liste) || !checkKommunenummer(kommune2, kommuneNummer_liste)) {
     alert("Ingen kommune med dette kommunenummeret, prøv igjen.");
     return;
   }
   //sletter alt som står i diven.
   document.getElementById('sammenligningDiv').innerHTML = "";
-
-
 
   var textElement = document.createElement("p");
   var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst. Ingen data på 2005, grunnet ingen tidligere data");
@@ -298,27 +297,30 @@ function sammenligningFunksjon() {
   var kommune1_info = sysselsatte.getMennOgKvinner(kommune1);
   var kommune2_info = sysselsatte.getMennOgKvinner(kommune2);
 
-  var kommune1_navn = befolkning.getName(kommune1);
-  var kommune2_navn = befolkning.getName(kommune2);
+  var kommune1_navn = befolknings_oversikt.getName(kommune1);
+  var kommune2_navn = befolknings_oversikt.getName(kommune2);
 
+  //lager en tabell.
   var x = document.createElement("TABLE");
   x.setAttribute("id", "myTableSammenligning");
   document.body.appendChild(x);
 
+  //tr er elementene som går bortover
   var y = document.createElement("TR");
   y.setAttribute("id", "myTrSammenligning");
   document.getElementById("myTableSammenligning").appendChild(y);
 
+  //alle overskriftene i tabellen.
   var overskrifter = ["Årstall", kommune1_navn + " menn", kommune2_navn + " menn ",
     kommune1_navn + " kvinner", kommune2_navn + " kvinner"
   ];
 
+  //looper gjennom antall overskrifter og legger de i en TR.
   for (var i = 0; i < overskrifter.length; i++) {
     var z = document.createElement("TD");
     var t = document.createTextNode(overskrifter[i]);
     z.appendChild(t);
     document.getElementById("myTrSammenligning").appendChild(z);
-
   }
 
   var startår = 2005;
@@ -329,6 +331,7 @@ function sammenligningFunksjon() {
   var prosent_kvinner_forrige_år_kommune1 = kommune1_info[1];
   var prosent_kvinner_forrige_år_kommune2 = kommune2_info[1];
 
+  //looper gjennom alle menn og kvinner og sjekke sysselsetting i de forskjellige kommunene.
   for (var i = 0; i < kommune1_info.length; i = i + 2) {
 
     var myTrId = "myTrSammenligning" + i;
@@ -350,6 +353,7 @@ function sammenligningFunksjon() {
 
     var verdi = [kommune1Menn, kommune2Menn, kommune1Kvinner, kommune2Kvinner];
 
+    //første året er det ingen vekst. Skal derfor ikke markere kommunenen.
     if (i === 0 || kommune1 === kommune2) {
       for (var j = 0; j < verdi.length; j++) {
         var tdElement = document.createElement("TD");
@@ -367,6 +371,7 @@ function sammenligningFunksjon() {
     var vekst_kvinner_kommune1 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune1, kommune1_info[i]);
     var vekst_kvinner_kommune2 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune2, kommune2_info[i]);
 
+    //hvis veksten menn i kommune 1 er størst, markeres den med et klassenavn.
     if (vekst_menn_kommune1 > vekst_menn_kommune2) {
       var kommune1MennTD = document.createElement("TD");
       var kommune1MennNode = document.createTextNode(kommune1_info[i]);
@@ -393,6 +398,8 @@ function sammenligningFunksjon() {
       kommune2MennTD.appendChild(kommune2MennNode);
       document.getElementById("myTrSammenligning" + i).appendChild(kommune2MennTD);
     }
+
+    //hvis veksten kvonner i kommune 1 er størst, markeres den med et klassenavn.
 
     if (vekst_kvinner_kommune1 > vekst_kvinner_kommune2) {
       var kommune1KvinnerTD = document.createElement("TD");
@@ -422,6 +429,7 @@ function sammenligningFunksjon() {
       document.getElementById("myTrSammenligning" + i).appendChild(kommune2KvinnerTD);
     }
 
+    //Setter forrige år til nåværende år i slutten av loopen.
     prosent_menn_forrige_år_kommune1 = kommune1_info[i];
     prosent_menn_forrige_år_kommune2 = kommune2_info[i];
 
@@ -439,7 +447,6 @@ function sjekkProsentVekst(prosent1, prosent2) {
   return vekst;
 
 }
-
 
 //Konstruktør utdanning.
 function Utdanning(url) {
@@ -476,7 +483,6 @@ Utdanning.prototype.getUtdanning = function(kommunenummer_input, kvinner, utdann
           var utdanningMenn = this.obj.elementer[prop][utdanning].Menn[(år + i)];
           info_array.push(utdanningMenn);
         }
-
       }
       // har ikke data på 2018. Legger det inn som 0,
       info_array.push(0);
@@ -606,12 +612,9 @@ Sysselsatte.prototype.getInfo = function(kommunenummer_input) {
       var kommunenavn = prop;
       var sysselsatte_menn = this.obj.elementer[prop].Menn[2018];
       var sysselsatte_kvinner = this.obj.elementer[prop].Kvinner[2018];
-
       var total_sysselsatte_prosent = this.obj.elementer[prop]['Begge kjønn'][2018];
 
-
       var info_array = [kommunenavn, kommunenummer, sysselsatte_menn, sysselsatte_kvinner, total_sysselsatte_prosent];
-
 
       return info_array;;
 
@@ -619,8 +622,6 @@ Sysselsatte.prototype.getInfo = function(kommunenummer_input) {
 
   }
 };
-
-
 
 //Konstruktør for befolknings objektet.
 function Befolknings_Data(url) {
@@ -675,7 +676,7 @@ Befolknings_Data.prototype.getIDs = function() {
 
 //printer i htmldokumentet.
 //ID = div hvor der printes.
-//Printer oversikt over all befolkning.
+//Printer befolknings_oversikt over all befolkning.
 Befolknings_Data.prototype.printHtml = function() {
 
   for (var prop in this.obj.elementer) {
