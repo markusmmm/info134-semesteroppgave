@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="nb" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Semesteroppgave</title>
+
+    <link rel="stylesheet" type="text/css" href="css/stilark.css">
+    <script type="text/javascript" src="js/myjs.js"></script>
+
+
+  </head>
+  <body onload ="loadOversikt()">
+
+    <div id="container">
+
+      <header id="header">
+        <nav id="navigation">
+            <ul id="list">
+              <li><a class="navElement" href="#introduksjon" onclick="changeDiv(introduksjon)">INTRODUKSJON</a></li>
+              <li><a class="navElement" href="#oversikt" onclick="changeDiv(oversikt)">OVERSIKT</a></li>
+              <li><a class="navElement" href="#detaljer" onclick="changeDiv(detaljer)">DETALJER</a></li>
+              <li><a class="navElement" href="#sammenligning" onclick="changeDiv(sammenligning)">SAMMENLIGNING</a></li>
+            </ul>
+        </nav>
+      </header>
+
+    <div id="content">
+      <div class="divElements">
+          <div id="introduksjon">
+            <p>Dette er et verktøy for å vise data om Norges befolkning. Det benytter seg av
+            utvalg fra tre datasett. Fra <a href="https://www.ssb.no"> ssb.no</a>
+            Vi tar forbehold om feil i dataene.</p>
+          </div>
+
+          <div id="oversikt">
+
+
+          </div>
+
+          <div id="detaljer">
+            <form>
+            Skriv inn kommunenummer<br>
+            <input type="text" id="kommune"><br>
+            <input type="button" onclick="kommuneInput()" value="SØK">
+            </form>
+
+          </div>
+
+          <div id="sammenligning">
+            <form>
+              <p>Kommune 1:</p> <input type="text" id="kommune1"><br>
+              <p>Kommune 2:</p> <input type="text" id="kommune2"><br>
+
+              <input type="button" id="sButton" onclick="sammenligningFunksjon()" value="SØK">
+
+
+            </form>
+
+          </div>
+      </div>
+
+    </div>
+
+
+  <div id=footer>
+      <footer class="footer">
+        <p> INFO134 Semesteroppgave </p>
+      </footer>
+  </div>
+
+  </div>
+
+
+  </body>
+</html>

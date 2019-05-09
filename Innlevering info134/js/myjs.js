@@ -287,7 +287,7 @@ function sammenligningFunksjon() {
   document.getElementById('sammenligningDiv').innerHTML = "";
 
   var textElement = document.createElement("p");
-  var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst (%). Ingen data på 2005, grunnet ingen tidligere data");
+  var innledningsNode = document.createTextNode("Grønn farge markerer størst vekst. Ingen data på 2005, grunnet ingen tidligere data");
   textElement.appendChild(innledningsNode);
 
   textElement.setAttribute("id", "innledningsNode");
@@ -368,8 +368,8 @@ function sammenligningFunksjon() {
     var vekst_menn_kommune1 = sjekkProsentVekst(prosent_menn_forrige_år_kommune1, kommune1_info[i]);
     var vekst_menn_kommune2 = sjekkProsentVekst(prosent_menn_forrige_år_kommune2, kommune2_info[i]);
 
-    var vekst_kvinner_kommune1 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune1, kommune1_info[i+1]);
-    var vekst_kvinner_kommune2 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune2, kommune2_info[i+1]);
+    var vekst_kvinner_kommune1 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune1, kommune1_info[i]);
+    var vekst_kvinner_kommune2 = sjekkProsentVekst(prosent_kvinner_forrige_år_kommune2, kommune2_info[i]);
 
     //hvis veksten menn i kommune 1 er størst, markeres den med et klassenavn.
     if (vekst_menn_kommune1 > vekst_menn_kommune2) {
